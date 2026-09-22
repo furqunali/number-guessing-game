@@ -20,3 +20,10 @@ class GuessHistory:
 
     def all(self) -> tuple[GuessRecord, ...]:
         return tuple(self._records)
+
+    def summary(self) -> dict[str, int]:
+        """Return deterministic counts for UI and session analytics."""
+        correct = sum(record.status == "correct" for record in self._records)
+        higher = sum(record.status == "higher" for record in self._records)
+        lower = sum(record.status == "lower" for record in self._records)
+        return {"total": len(self._records), "correct": correct, "higher": higher, "lower": lower}
