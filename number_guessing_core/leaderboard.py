@@ -7,14 +7,26 @@ class LeaderboardEntry:
     attempts: int
 
 def validate_entry(entry: LeaderboardEntry) -> LeaderboardEntry:
-    if not isinstance(entry, LeaderboardEntry): raise TypeError("entry must be a LeaderboardEntry")
+    if not isinstance(entry, LeaderboardEntry):
+        raise TypeError("entry must be a LeaderboardEntry")
     player = entry.player.strip()
-    if not player: raise ValueError("player name is required")
-    if isinstance(entry.score, bool) or not isinstance(entry.score, int) or entry.score < 0: raise ValueError("score must be a non-negative integer")
-    if isinstance(entry.attempts, bool) or not isinstance(entry.attempts, int) or entry.attempts < 1: raise ValueError("attempts must be a positive integer")
+    if not player:
+        raise ValueError("player name is required")
+    if isinstance(entry.score, bool) or not isinstance(entry.score, int) or entry.score < 0:
+        raise ValueError("score must be a non-negative integer")
+    if isinstance(entry.attempts, bool) or not isinstance(entry.attempts, int) or entry.attempts < 1:
+        raise ValueError("attempts must be a positive integer")
     return LeaderboardEntry(player, entry.score, entry.attempts)
 
 def rank_entries(entries: list[LeaderboardEntry]) -> list[LeaderboardEntry]:
     """Validate and deterministically rank entries by score, attempts, then name."""
     values = [validate_entry(entry) for entry in entries]
     return sorted(values, key=lambda e: (-e.score, e.attempts, e.player.casefold()))
+
+def top_entries(entries: list[LeaderboardEntry], limit: int = 10) -> list[LeaderboardEntry]:
+    """Return a bounded leaderboard without mutating the supplied entries."""
+    if isinstance(limit, bool) or not isinstance(limit, int):
+        raise TypeError("limit must be an integer")
+    if limit < 1:
+        raise ValueError("limit must be positive")
+    return rank_entries(entries)[:limit]
