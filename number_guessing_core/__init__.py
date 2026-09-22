@@ -12,3 +12,5 @@ __all__ = [
     "remaining_attempts",
     "validate_attempt_limit",
 ]
+
+from .leaderboard import validate_entry
