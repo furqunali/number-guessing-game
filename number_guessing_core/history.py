@@ -11,8 +11,14 @@ class GuessHistory:
         self._records: list[GuessRecord] = []
 
     def add(self, record: GuessRecord):
-        if record.attempts < 1:
-            raise ValueError("attempts must be positive")
+        if not isinstance(record, GuessRecord):
+            raise TypeError("record must be a GuessRecord")
+        if isinstance(record.guess, bool) or not isinstance(record.guess, int):
+            raise TypeError("guess must be an integer")
+        if isinstance(record.attempts, bool) or not isinstance(record.attempts, int) or record.attempts < 1:
+            raise ValueError("attempts must be a positive integer")
+        if record.status not in {"higher", "lower", "correct"}:
+            raise ValueError("status must be higher, lower, or correct")
         self._records.append(record)
 
     def latest(self) -> GuessRecord | None:
@@ -22,7 +28,6 @@ class GuessHistory:
         return tuple(self._records)
 
     def summary(self) -> dict[str, int]:
-        """Return deterministic counts for UI and session analytics."""
         correct = sum(record.status == "correct" for record in self._records)
         higher = sum(record.status == "higher" for record in self._records)
         lower = sum(record.status == "lower" for record in self._records)
