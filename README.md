@@ -1,19 +1,37 @@
-# 🔢 Counting Game
+# 🔢 Number Guessing Game
 
-A small interactive **command-line number game** in Python — a beginner-friendly exercise in loops, conditionals, and user input handling.
+A small interactive **command-line number-guessing game** in Python, designed as a training project for input validation, game state, scoring, and testing.
 
-## Run it
+## Install
+
+Requires Python 3.11+.
+
+```bash
+python -m pip install -e ".[dev]"
+```
+
+## Run
 
 ```bash
 python app.py
 ```
 
+## Test
+
+```bash
+pytest
+```
+
 ## What it shows
 
-- Reading and validating user input in a loop
-- Simple game/scoring logic
-- Clean, readable control flow
+- Integer input and attempt-limit validation
+- Deterministic game-engine behavior
+- Scoring and guess statistics
+- Testable domain logic separated from the CLI
+- Stable public API through `number_guessing_core`
 
----
+## Structure
 
-*Part of [Furqan Ali](https://github.com/furqunali)'s portfolio — AI & Intelligent Automation / Digital Transformation.*
+- `number_guessing_core/` — reusable game domain
+- `app.py` — command-line entry point
+- `tests/` — automated tests
