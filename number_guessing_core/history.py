@@ -9,6 +9,7 @@ class GuessRecord:
 class GuessHistory:
     def __init__(self):
         self._records: list[GuessRecord] = []
+
     def add(self, record: GuessRecord):
         if not isinstance(record, GuessRecord):
             raise TypeError("record must be a GuessRecord")
@@ -19,10 +20,13 @@ class GuessHistory:
         if record.status not in {"higher", "lower", "correct"}:
             raise ValueError("status must be higher, lower, or correct")
         self._records.append(record)
+
     def latest(self) -> GuessRecord | None:
         return self._records[-1] if self._records else None
+
     def all(self) -> tuple[GuessRecord, ...]:
         return tuple(self._records)
+
     def summary(self) -> dict[str, int]:
         correct = sum(r.status == "correct" for r in self._records)
         higher = sum(r.status == "higher" for r in self._records)
