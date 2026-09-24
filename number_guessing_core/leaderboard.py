@@ -19,9 +19,9 @@ def validate_entry(entry: LeaderboardEntry) -> LeaderboardEntry:
     return LeaderboardEntry(player, entry.score, entry.attempts)
 
 def rank_entries(entries: list[LeaderboardEntry]) -> list[LeaderboardEntry]:
-    """Validate and deterministically rank entries by score, attempts, then name."""
+    """Rank by score, attempts, then case-insensitive player name."""
     values = [validate_entry(entry) for entry in entries]
-    return sorted(values, key=lambda e: (-e.score, e.attempts, e.player.casefold()))
+    return sorted(values, key=lambda e: (-e.score, e.attempts, e.player.casefold(), e.player))
 
 def top_entries(entries: list[LeaderboardEntry], limit: int = 10) -> list[LeaderboardEntry]:
     """Return a bounded leaderboard without mutating the supplied entries."""
@@ -30,3 +30,10 @@ def top_entries(entries: list[LeaderboardEntry], limit: int = 10) -> list[Leader
     if limit < 1:
         raise ValueError("limit must be positive")
     return rank_entries(entries)[:limit]
+
+def tied_entries(entries: list[LeaderboardEntry]) -> dict[tuple[int, int], list[LeaderboardEntry]]:
+    """Group entries sharing the same score and attempt count."""
+    groups: dict[tuple[int, int], list[LeaderboardEntry]] = {}
+    for entry in rank_entries(entries):
+        groups.setdefault((entry.score, entry.attempts), []).append(entry)
+    return {key: group for key, group in groups.items() if len(group) > 1}
