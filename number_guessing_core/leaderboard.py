@@ -19,12 +19,10 @@ def validate_entry(entry: LeaderboardEntry) -> LeaderboardEntry:
     return LeaderboardEntry(player, entry.score, entry.attempts)
 
 def rank_entries(entries: list[LeaderboardEntry]) -> list[LeaderboardEntry]:
-    """Rank by score, attempts, then case-insensitive player name."""
     values = [validate_entry(entry) for entry in entries]
     return sorted(values, key=lambda e: (-e.score, e.attempts, e.player.casefold(), e.player))
 
 def top_entries(entries: list[LeaderboardEntry], limit: int = 10) -> list[LeaderboardEntry]:
-    """Return a bounded leaderboard without mutating the supplied entries."""
     if isinstance(limit, bool) or not isinstance(limit, int):
         raise TypeError("limit must be an integer")
     if limit < 1:
@@ -32,15 +30,18 @@ def top_entries(entries: list[LeaderboardEntry], limit: int = 10) -> list[Leader
     return rank_entries(entries)[:limit]
 
 def tied_entries(entries: list[LeaderboardEntry]) -> dict[tuple[int, int], list[LeaderboardEntry]]:
-    """Group entries sharing the same score and attempt count."""
     groups: dict[tuple[int, int], list[LeaderboardEntry]] = {}
     for entry in rank_entries(entries):
         groups.setdefault((entry.score, entry.attempts), []).append(entry)
     return {key: group for key, group in groups.items() if len(group) > 1}
 
 def entries_for_player(entries: list[LeaderboardEntry], player: str) -> list[LeaderboardEntry]:
-    """Return validated leaderboard records for one player, case-insensitively."""
     name = str(player).strip().casefold()
     if not name:
         return []
     return [entry for entry in rank_entries(entries) if entry.player.casefold() == name]
+
+def best_entry_for_player(entries: list[LeaderboardEntry], player: str) -> LeaderboardEntry | None:
+    """Return the highest-ranked record for a player, or None when absent."""
+    matches = entries_for_player(entries, player)
+    return matches[0] if matches else None
