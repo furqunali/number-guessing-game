@@ -37,3 +37,10 @@ def tied_entries(entries: list[LeaderboardEntry]) -> dict[tuple[int, int], list[
     for entry in rank_entries(entries):
         groups.setdefault((entry.score, entry.attempts), []).append(entry)
     return {key: group for key, group in groups.items() if len(group) > 1}
+
+def entries_for_player(entries: list[LeaderboardEntry], player: str) -> list[LeaderboardEntry]:
+    """Return validated leaderboard records for one player, case-insensitively."""
+    name = str(player).strip().casefold()
+    if not name:
+        return []
+    return [entry for entry in rank_entries(entries) if entry.player.casefold() == name]
