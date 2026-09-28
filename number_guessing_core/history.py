@@ -27,6 +27,12 @@ class GuessHistory:
     def all(self) -> tuple[GuessRecord, ...]:
         return tuple(self._records)
 
+    def by_status(self, status: str) -> tuple[GuessRecord, ...]:
+        """Return records for a supported outcome without exposing mutable storage."""
+        if status not in {"higher", "lower", "correct"}:
+            raise ValueError("status must be higher, lower, or correct")
+        return tuple(record for record in self._records if record.status == status)
+
     def summary(self) -> dict[str, int]:
         correct = sum(r.status == "correct" for r in self._records)
         higher = sum(r.status == "higher" for r in self._records)
