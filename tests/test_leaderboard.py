@@ -1,4 +1,4 @@
-from number_guessing_core.leaderboard import LeaderboardEntry, top_entries
+from number_guessing_core import LeaderboardEntry, top_entries
 
 def test_top_entries_limits_ranked_results():
     entries = [LeaderboardEntry("A", 100, 2), LeaderboardEntry("B", 300, 3), LeaderboardEntry("C", 200, 1)]
