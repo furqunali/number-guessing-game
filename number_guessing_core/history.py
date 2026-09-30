@@ -33,6 +33,11 @@ class GuessHistory:
             raise ValueError("status must be higher, lower, or correct")
         return tuple(record for record in self._records if record.status == status)
 
+    def best_attempts(self) -> int | None:
+        """Return the fewest attempts among successful guesses, if any."""
+        successful = [record.attempts for record in self._records if record.status == "correct"]
+        return min(successful) if successful else None
+
     def summary(self) -> dict[str, int]:
         correct = sum(r.status == "correct" for r in self._records)
         higher = sum(r.status == "higher" for r in self._records)
