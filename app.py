@@ -1,6 +1,6 @@
 import sys
 
-from number_guessing_core import GuessEngine, GuessHistory, GuessRecord
+from number_guessing_core import GuessEngine, GuessHistory, GuessRecord, GuessStats
 
 
 try:
@@ -34,11 +34,12 @@ def number_guessing_game() -> None:
             elif result.status == "lower":
                 print("📈 Too high! Try again. 🪂")
             else:
+                stats = GuessStats.from_attempts(result.attempts, won=True)
                 print(
                     f"🎉🎉 Congratulations! You guessed the number "
                     f"in {result.attempts} attempts. 🎯"
                 )
-                print(f"📊 Final score: {max(0, 1000 - (result.attempts - 1) * 50)}")
+                print(f"📊 Final score: {stats.score}")
                 print(f"🧾 Guess history: {history.summary()}")
                 break
         except ValueError:
