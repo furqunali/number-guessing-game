@@ -21,3 +21,28 @@ def test_scoring_is_bounded():
     assert score_for_attempts(30, True) == 0
     with pytest.raises(ValueError):
         score_for_attempts(-1, True)
+
+
+def test_history_snapshot_round_trips_through_json():
+    import json
+
+    history = GuessHistory()
+    history.add(GuessRecord(20, 1, "higher"))
+    history.add(GuessRecord(50, 2, "correct"))
+
+    snapshot = history.to_dict()
+    restored = GuessHistory.from_dict(json.loads(json.dumps(snapshot)))
+
+    assert restored.all() == history.all()
+    assert restored.summary() == history.summary()
+
+
+def test_history_snapshot_rejects_malformed_data():
+    with pytest.raises(TypeError):
+        GuessHistory.from_dict([])
+
+    with pytest.raises(ValueError):
+        GuessHistory.from_dict({"records": "not-a-list"})
+
+    with pytest.raises(ValueError):
+        GuessHistory.from_dict({"records": [{"guess": 10, "attempts": 1}]})
