@@ -45,3 +45,41 @@ def best_entry_for_player(entries: list[LeaderboardEntry], player: str) -> Leade
     """Return the highest-ranked record for a player, or None when absent."""
     matches = entries_for_player(entries, player)
     return matches[0] if matches else None
+
+
+def leaderboard_to_dict(entries: list[LeaderboardEntry]) -> dict[str, list[dict[str, int | str]]]:
+    """Return a JSON-compatible snapshot of validated leaderboard entries."""
+    return {
+        "entries": [
+            {
+                "player": entry.player,
+                "score": entry.score,
+                "attempts": entry.attempts,
+            }
+            for entry in rank_entries(entries)
+        ]
+    }
+
+
+def leaderboard_from_dict(data: dict) -> list[LeaderboardEntry]:
+    """Restore and validate leaderboard entries from a snapshot."""
+    if not isinstance(data, dict):
+        raise TypeError("leaderboard snapshot must be a dictionary")
+    values = data.get("entries")
+    if not isinstance(values, list):
+        raise ValueError("leaderboard snapshot entries must be a list")
+
+    entries: list[LeaderboardEntry] = []
+    for item in values:
+        if not isinstance(item, dict):
+            raise ValueError("leaderboard snapshot entries must contain dictionaries")
+        try:
+            entry = LeaderboardEntry(
+                player=item["player"],
+                score=item["score"],
+                attempts=item["attempts"],
+            )
+        except KeyError as exc:
+            raise ValueError(f"leaderboard entry is missing {exc.args[0]}") from exc
+        entries.append(validate_entry(entry))
+    return entries
