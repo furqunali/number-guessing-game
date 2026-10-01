@@ -1,10 +1,13 @@
 from dataclasses import dataclass
+import json
+
 
 @dataclass(frozen=True)
 class GuessRecord:
     guess: int
     attempts: int
     status: str
+
 
 class GuessHistory:
     def __init__(self):
@@ -46,16 +49,7 @@ class GuessHistory:
 
     def to_dict(self) -> dict[str, list[dict[str, int | str]]]:
         """Return a JSON-compatible snapshot of the recorded guesses."""
-        return {
-            "records": [
-                {
-                    "guess": record.guess,
-                    "attempts": record.attempts,
-                    "status": record.status,
-                }
-                for record in self._records
-            ]
-        }
+        return {"records": [{"guess": r.guess, "attempts": r.attempts, "status": r.status} for r in self._records]}
 
     @classmethod
     def from_dict(cls, data: dict) -> "GuessHistory":
@@ -65,18 +59,30 @@ class GuessHistory:
         records = data.get("records")
         if not isinstance(records, list):
             raise ValueError("history snapshot records must be a list")
-
         history = cls()
         for item in records:
             if not isinstance(item, dict):
                 raise ValueError("history snapshot records must contain dictionaries")
             try:
-                record = GuessRecord(
-                    guess=item["guess"],
-                    attempts=item["attempts"],
-                    status=item["status"],
-                )
+                record = GuessRecord(guess=item["guess"], attempts=item["attempts"], status=item["status"])
             except KeyError as exc:
                 raise ValueError(f"history record is missing {exc.args[0]}") from exc
             history.add(record)
         return history
+
+
+def history_to_json(history: GuessHistory) -> str:
+    """Serialize guess history to JSON."""
+    if not isinstance(history, GuessHistory):
+        raise TypeError("history must be a GuessHistory")
+    return json.dumps(history.to_dict())
+
+
+def history_from_json(payload: str) -> GuessHistory:
+    """Restore guess history from a JSON snapshot."""
+    if not isinstance(payload, str):
+        raise TypeError("payload must be a string")
+    data = json.loads(payload)
+    if not isinstance(data, dict):
+        raise ValueError("history payload must contain an object")
+    return GuessHistory.from_dict(data)
