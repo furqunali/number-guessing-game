@@ -46,3 +46,20 @@ def test_history_snapshot_rejects_malformed_data():
 
     with pytest.raises(ValueError):
         GuessHistory.from_dict({"records": [{"guess": 10, "attempts": 1}]})
+
+
+def test_history_json_round_trip():
+    from number_guessing_core.history import history_from_json, history_to_json
+
+    history = GuessHistory()
+    history.add(GuessRecord(20, 1, "higher"))
+    history.add(GuessRecord(50, 2, "correct"))
+
+    assert history_from_json(history_to_json(history)).all() == history.all()
+
+
+def test_history_json_rejects_non_object_payload():
+    from number_guessing_core.history import history_from_json
+
+    with pytest.raises(ValueError, match="history payload must contain an object"):
+        history_from_json("[]")
