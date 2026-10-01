@@ -1,4 +1,4 @@
-from number_guessing_core import LeaderboardEntry, top_entries
+from number_guessing_core import LeaderboardEntry, leaderboard_from_dict, leaderboard_to_dict, top_entries
 
 def test_top_entries_limits_ranked_results():
     entries = [LeaderboardEntry("A", 100, 2), LeaderboardEntry("B", 300, 3), LeaderboardEntry("C", 200, 1)]
@@ -12,10 +12,8 @@ def test_leaderboard_snapshot_round_trips_through_json():
         LeaderboardEntry("Bravo", 700, 3),
         LeaderboardEntry("Alpha", 900, 2),
     ]
-    snapshot = __import__("number_guessing_core").leaderboard_to_dict(entries)
-    restored = __import__("number_guessing_core").leaderboard_from_dict(
-        json.loads(json.dumps(snapshot))
-    )
+    snapshot = leaderboard_to_dict(entries)
+    restored = leaderboard_from_dict(json.loads(json.dumps(snapshot)))
 
     assert restored == [
         LeaderboardEntry("Alpha", 900, 2),
@@ -25,7 +23,6 @@ def test_leaderboard_snapshot_round_trips_through_json():
 
 def test_leaderboard_snapshot_rejects_malformed_data():
     import pytest
-    from number_guessing_core import leaderboard_from_dict
 
     with pytest.raises(TypeError):
         leaderboard_from_dict([])
