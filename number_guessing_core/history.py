@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+import json
 
 @dataclass(frozen=True)
 class GuessRecord:
@@ -56,6 +57,23 @@ class GuessHistory:
                 for record in self._records
             ]
         }
+
+
+def history_to_json(history: GuessHistory) -> str:
+    """Serialize guess history to JSON."""
+    if not isinstance(history, GuessHistory):
+        raise TypeError("history must be a GuessHistory")
+    return json.dumps(history.to_dict())
+
+
+def history_from_json(payload: str) -> GuessHistory:
+    """Restore guess history from a JSON snapshot."""
+    if not isinstance(payload, str):
+        raise TypeError("payload must be a string")
+    data = json.loads(payload)
+    if not isinstance(data, dict):
+        raise ValueError("history payload must contain an object")
+    return GuessHistory.from_dict(data)
 
     @classmethod
     def from_dict(cls, data: dict) -> "GuessHistory":
